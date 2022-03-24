@@ -1,8 +1,6 @@
 # Resultify
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/resultify`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+Inspired by Result and Option objects in Rust and Maybe Typeclass in Haskell. This gem adds these features to Ruby.
 
 ## Installation
 
@@ -11,28 +9,61 @@ Add this line to your application's Gemfile:
 ```ruby
 gem 'resultify'
 ```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install resultify
-
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+class User
+  attr_accessor :first_name, :last_name
+  include Resultify
+  resultify :get_full_name
 
-## Development
+  def initialize(fname, lname)
+    @first_name = fname
+    @last_name = lname
+  end
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+  def get_full_name
+    @first_name + @last_name
+  end
+end
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+u = User.new("John", nil)
+result = u.get_full_name
+result.error_handler = proc { |err| puts "could not get full name from user" }
+result.value_handler = proc { |v| puts "Hello #{v}" }
+```
+Resultify forces you to define the error_handler function before trying to access the value wrapped inside the Result object.
+If you define the value_handler without defining error_handler, you'll get an error.
+If `get_full_name` results in an error, the exception will be caught and the proc assigned to `result.error_handler` will be called otherwise `result.value_handler`.
+
+Similarly for handling blank values you can call the `optionify` method.
+
+```ruby
+class User
+  attr_accessor :first_name, :last_name
+  include Resultify
+  optionify :get_full_name
+
+  def initialize(fname, lname)
+    @first_name = fname
+    @last_name = lname
+  end
+
+  def get_full_name
+    first_name + last_name
+  end
+end
+
+u = User.new("", "")
+result = u.get_full_name
+result.blank_handler = proc { |err| puts "could not get full name from user" }
+result.value_handler = proc { |v| puts "Hello #{v}" }
+```
+If `u.get_full_name` return a blank value i.e `[], nil, ''` then the proc assigned to `result.blank_handler` will be called otherwise `result.value_handler`.
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/resultify. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+Bug reports and pull requests are welcome on GitHub at https://github.com/blackblood/resultify. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
 ## License
 
@@ -40,4 +71,4 @@ The gem is available as open source under the terms of the [MIT License](https:/
 
 ## Code of Conduct
 
-Everyone interacting in the Resultify project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/resultify/blob/master/CODE_OF_CONDUCT.md).
+Everyone interacting in the Resultify project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/blackblood/resultify/blob/master/CODE_OF_CONDUCT.md).
