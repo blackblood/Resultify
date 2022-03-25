@@ -2,7 +2,10 @@
 
 module Resultify
   class Result
+    private
     attr_accessor :value, :err
+
+    public
     attr_reader :error_handler
     attr_reader :value_handler
 
@@ -28,7 +31,10 @@ module Resultify
   end
 
   class Option
+    private
     attr_accessor :value
+
+    public
     attr_reader :blank_handler
     attr_reader :value_handler
 
