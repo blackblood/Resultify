@@ -1,4 +1,4 @@
-require "resultify/version"
+# require "resultify/version"
 
 module Resultify
   class Result
@@ -19,7 +19,7 @@ module Resultify
     end
 
     def value_handler=(f)
-      raise "Define error_handle" if !@error_handler.is_a?(Proc)
+      raise "Define error_handler = proc { |err| } before calling value_handler" if !@error_handler.is_a?(Proc)
       @result_handler = f
       if @err == nil
         f.call(@value)
@@ -44,7 +44,7 @@ module Resultify
     end
 
     def value_handler=(f)
-      raise "Define blank_handle" if !@blank_handler.is_a?(Proc)
+      raise "Define blank_handler = proc { } before calling value_handler" if !@blank_handler.is_a?(Proc)
       if @value != nil && @value != ""
         f.call(@value)
       end
